@@ -7,9 +7,9 @@ from src.logger import Logger
 from src.routers.models.llm_text_completion import TextCompletionRequest, TextCompletionResponse
 from src.routers.models.user import AuthUser
 
-OLLAMA_HOST = os.getenv("OLLAMA_HOST","http://localhost:9999")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "gemma3:1b")
-DOKOOLA_BACKEND_API = os.getenv("DOKOOLA_BACKEND_API", "http://localhost:8000/api")
+OLLAMA_HOST = os.getenv("OLLAMA_HOST",None)
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", None)
+DOKOOLA_BACKEND_API = os.getenv("DOKOOLA_BACKEND_API")
 
 logger = Logger(__name__)
 router = APIRouter(
@@ -38,6 +38,11 @@ def llm_text_completion(request:TextCompletionRequest, userPublicId: str, respon
             return TextCompletionResponse(success=False, error_message="User not found")
         
         completion = engage_ai_for_text_completion(request.text, user)
+        if not completion:
+            respone.status_code = 500
+            return TextCompletionResponse(success=False, error_message="Internal server error")
+
+        logger.info(f"llm_text_completion request completed for user {userPublicId} with status code {respone.status_code}")
         return TextCompletionResponse(completion=completion, success=True) 
     except Exception as e:
         logger.error(f"llm_text_completion request failed: {e}")
@@ -56,14 +61,19 @@ def get_user_by_public_id(public_id: str):
     except Exception as e:
         logger.error(f"Failed to get user by public id {public_id} [Error:] {e}")
 
-def engage_ai_for_text_completion(prompt: str, user: AuthUser) -> str:
+def engage_ai_for_text_completion(prompt: str, user: AuthUser) -> str|None:
 
     payload = {
+
         "model": OLLAMA_MODEL,
         "messages": [
             {
                 "role": "system",
-                "content": "Welcome to Dokoola Platform! I am your dedicated AI assistant, ready to help you with any questions or tasks you have."
+                "content": "Welcome to Dokoola Platform!"
+            },
+            {
+                "role": "system",
+                "content": "You are an expert career assistant."
             },
             {
                 "role": "user",
@@ -90,8 +100,8 @@ def engage_ai_for_text_completion(prompt: str, user: AuthUser) -> str:
             return generated_text
         else:
             logger.error(f"Failed to get a valid response from Ollama. Status code: {response.status_code}")
-            return f"Completed: {prompt}"
+            return None
 
     except requests.exceptions.RequestException as e:
         logger.error(f"Error calling AI model: {e}")
-        return f"Completed: {prompt}"
+        return None
