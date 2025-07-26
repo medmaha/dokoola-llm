@@ -44,11 +44,11 @@ async def authorization_middleware(request: Request, call_next):
             "reason":"Invalid service-client provided"
         }), status_code=403)
 
-    service_host = service.get("host")
-    request_host = headers.get("host", "").split(":")[0]  # Extract host without port
+    request_host = request.url.hostname
+    service_client_host = service.get("host")
 
-    if service_host != request_host:
-        logger.warning(f"Invalid host origin attempted: {request_host}, expected: {service_host}")
+    if service_client_host != request_host:
+        logger.warning(f"Invalid host origin attempted: {request_host}, expected: {service_client_host}")
         return JSONResponse({
             "message": "403: Forbidden request!",
             "reason": "Invalid host origin"
