@@ -44,7 +44,7 @@ async def authorization_middleware(request: Request, call_next):
             "reason":"Invalid service-client provided"
         }), status_code=403)
 
-    request_host = request.url.hostname
+    request_host = headers.get("origin")
     service_client_host = service.get("host")
 
     if service_client_host != request_host:

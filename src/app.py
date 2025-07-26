@@ -1,9 +1,12 @@
 import os
+from dotenv import load_dotenv
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
+
+load_dotenv()
 
 from src.logger import Logger
 from src.routers import (
@@ -15,12 +18,12 @@ from .middlewares import (
     process_timer_middleware
 )
 
-from src.constant import (
-    ALLOWED_ORIGNS,
-    DOKOOLA_X_LLM_SERVICE_KEY_NAME,
-    DOKOOLA_X_LLM_SERVICE_CLIENT_NAME,
-    DOKOOLA_X_LLM_SERVICE_SECRET_HASH_NAME
-)
+# from src.constant import (
+#     ALLOWED_ORIGNS,
+#     DOKOOLA_X_LLM_SERVICE_KEY_NAME,
+#     DOKOOLA_X_LLM_SERVICE_CLIENT_NAME,
+#     DOKOOLA_X_LLM_SERVICE_SECRET_HASH_NAME
+# )
 
 
 logger = Logger(__name__)
@@ -31,13 +34,16 @@ app = FastAPI(root_path=API_BASE_PATH, openapi_version='3.0.1')
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=ALLOWED_ORIGNS,    
-    allow_methods=['get', "post"],
-    allow_headers=[
-        DOKOOLA_X_LLM_SERVICE_KEY_NAME,
-        DOKOOLA_X_LLM_SERVICE_CLIENT_NAME,
-        DOKOOLA_X_LLM_SERVICE_SECRET_HASH_NAME,
-    ]
+    # allow_origins=ALLOWED_ORIGNS,
+    # allow_methods=["get", "post"],
+    # allow_headers=[
+    #     DOKOOLA_X_LLM_SERVICE_KEY_NAME,
+    #     DOKOOLA_X_LLM_SERVICE_CLIENT_NAME,
+    #     DOKOOLA_X_LLM_SERVICE_SECRET_HASH_NAME
+    # ],
+    allow_origins ="*",
+    allow_methods=["*"],
+    allow_headers=["*"]
 )
 
 @app.middleware('http')
