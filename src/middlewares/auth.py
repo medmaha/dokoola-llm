@@ -1,14 +1,15 @@
-import os
 from fastapi import Request, Response
 from fastapi.responses import JSONResponse
 
+from src.logger import Logger
 from src.constant import (
     ALLOWED_SERVICES,
     DOKOOLA_X_LLM_SERVICE_KEY_NAME,
     DOKOOLA_X_LLM_SERVICE_CLIENT_NAME,
     DOKOOLA_X_LLM_SERVICE_SECRET_HASH_NAME
 )
-from src.logger import Logger
+
+
 logger = Logger(__name__)
 
 async def authorization_middleware(request: Request, call_next):
@@ -44,16 +45,16 @@ async def authorization_middleware(request: Request, call_next):
             "reason":"Invalid service-client provided"
         }), status_code=403)
 
-    request_host = headers.get("origin")
-    service_client_host = service.get("host")
+    # request_host = headers.get("origin")
+    # service_client_host = service.get("host")
 
-    if service_client_host != request_host:
-        logger.warning(f"Invalid host origin attempted: {request_host}, expected: {service_client_host}")
-        return JSONResponse({
-            "message": "403: Forbidden request!",
-            "reason": "Invalid host origin"
-        }, status_code=403)
+    # if service_client_host != request_host:
+    #     logger.warning(f"Invalid host origin attempted: {request_host}, expected: {service_client_host}")
+    #     return JSONResponse({
+    #         "message": "403: Forbidden request!",
+    #         "reason": "Invalid host origin"
+    #     }, status_code=403)
 
-    logger.info(f"Authorization successful for service: {llm_service_key}")
+    logger.info(f"Authorization successful for service: {llm_service_client_name}")
     response: Response = await call_next(request)
     return response
