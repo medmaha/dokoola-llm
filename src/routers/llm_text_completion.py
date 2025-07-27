@@ -12,7 +12,7 @@ LLM_URL = os.getenv("LLM_URL", None)
 LLM_API_KEY = os.getenv("LLM_API_KEY",None)
 AUTH_SERVER_API = os.getenv("AUTH_SERVER_API")
 
-MODELS = (
+MODELS = [
     'google/gemini-2.5-flash-lite',
     'google/gemini-2.5-flash-lite',
     "qwen/qwen3-30b-a3b:free",
@@ -24,7 +24,10 @@ MODELS = (
     "tencent/hunyuan-a13b-instruct:free",
     'google/gemini-2.5-flash-lite',
     'google/gemini-2.5-flash-lite',
-)
+    "qwen/qwen3-235b-a22b-2507:free",
+    'google/gemini-2.5-flash-lite',
+    'google/gemini-2.5-flash-lite',
+]
 
 # Define system messages that set the context and role for the AI assistant
 # These messages help establish the AI's identity as a career assistant on the Dokoola platform

@@ -14,8 +14,8 @@ class AuthUser(UserProfile):
     public_id: str
     is_active: bool
     email_verified: bool
-    complete_profile: bool
     username: Optional[str] = Field(default=None)
+    complete_profile: Optional[bool] = Field(default=True)
 
     class Config:
         from_attributes = True
