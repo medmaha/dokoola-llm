@@ -1,4 +1,4 @@
-.PHONY: build dev prod stop clean logs shell test
+.PHONY: build build-prod rebuild rebuild-prod dev prod stop clean logs shell test
 
 # Variables
 IMAGE_NAME = llm-api
@@ -8,6 +8,9 @@ PROD_CONTAINER_NAME = llm-api-prod
 # Build the Docker image
 build:
 	docker compose build
+
+build-prod:
+	docker compose -f docker-compose.prod.yml build
 
 # Run in development mode
 dev:
@@ -20,6 +23,52 @@ dev-d:
 # Run in production mode
 prod:
 	docker compose -f docker-compose.prod.yml up --build -d
+
+# Rebuild and redeploy development containers
+rebuild:
+	@echo "🔄 Rebuilding and redeploying development containers..."
+	@echo "Step 1: Building new image..."
+	docker compose build --no-cache
+	@echo "Step 2: Gracefully stopping old containers..."
+	docker compose down --remove-orphans
+	@echo "Step 3: Starting new containers..."
+	docker compose up -d
+	@echo "Step 4: Waiting for health check..."
+	@for i in $$(seq 1 30); do \
+		sleep 2; \
+		STATUS=$$(docker inspect --format='{{.State.Health.Status}}' $(CONTAINER_NAME) 2>/dev/null || echo "starting"); \
+		echo "Health check attempt $$i/30: $$STATUS"; \
+		if [ "$$STATUS" = "healthy" ]; then \
+			echo "✅ Rebuild completed successfully! Container is healthy."; \
+			break; \
+		fi; \
+		if [ $$i -eq 30 ]; then \
+			echo "⚠️ Rebuild completed but health check failed. Check logs with: make logs"; \
+		fi; \
+	done
+
+# Rebuild and redeploy production containers
+rebuild-prod:
+	@echo "🔄 Rebuilding and redeploying production containers..."
+	@echo "Step 1: Building new image..."
+	docker compose -f docker-compose.prod.yml build --no-cache
+	@echo "Step 2: Gracefully stopping old containers..."
+	docker compose -f docker-compose.prod.yml down --remove-orphans
+	@echo "Step 3: Starting new containers..."
+	docker compose -f docker-compose.prod.yml up -d
+	@echo "Step 4: Waiting for health check..."
+	@for i in $$(seq 1 30); do \
+		sleep 2; \
+		STATUS=$$(docker inspect --format='{{.State.Health.Status}}' $(PROD_CONTAINER_NAME) 2>/dev/null || echo "starting"); \
+		echo "Health check attempt $$i/30: $$STATUS"; \
+		if [ "$$STATUS" = "healthy" ]; then \
+			echo "✅ Production rebuild completed successfully! Container is healthy."; \
+			break; \
+		fi; \
+		if [ $$i -eq 30 ]; then \
+			echo "⚠️ Production rebuild completed but health check failed. Check logs with: make logs-prod"; \
+		fi; \
+	done
 
 # Stop all containers
 stop:
