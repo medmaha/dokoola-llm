@@ -56,6 +56,9 @@ test:
 health:
 	docker inspect --format='{{.State.Health.Status}}' $(CONTAINER_NAME)
 
+health-prod:
+	docker inspect --format='{{.State.Health.Status}}' $(PROD_CONTAINER_NAME)
+
 # Restart the service
 restart:
 	docker compose restart

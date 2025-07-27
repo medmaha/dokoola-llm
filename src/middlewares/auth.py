@@ -9,10 +9,15 @@ from src.constant import (
     DOKOOLA_X_LLM_SERVICE_SECRET_HASH_NAME
 )
 
-
 logger = Logger(__name__)
 
 async def authorization_middleware(request: Request, call_next):
+    # Skip authorization for health check endpoint
+    if request.url.path.endswith("/health/") or request.url.path.endswith("/health"):
+        logger.info("Skipping authorization for health check endpoint")
+        response = await call_next(request)
+        return response
+    
     headers = request.headers
     logger.info(f"Processing authorization request from {headers.get('host', 'unknown host')}")
 
