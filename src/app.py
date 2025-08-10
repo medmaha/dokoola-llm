@@ -1,6 +1,6 @@
 import os
-from dotenv import load_dotenv
 
+from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -11,12 +11,11 @@ load_dotenv()
 from src.logger import Logger
 from src.routers import (
     healthcheck,
+    jobs,
     llm_text_completion,
 )
-from .middlewares import (
-    authorization_middleware,
-    process_timer_middleware
-)
+
+from .middlewares import authorization_middleware, process_timer_middleware
 
 # from src.constant import (
 #     ALLOWED_ORIGNS,
@@ -28,8 +27,8 @@ from .middlewares import (
 
 logger = Logger(__name__)
 
-API_BASE_PATH = os.environ.get('API_BASE_PATH', '/api')
-app = FastAPI(root_path=API_BASE_PATH, openapi_version='3.0.1')
+API_BASE_PATH = os.environ.get("API_BASE_PATH", "/api")
+app = FastAPI(root_path=API_BASE_PATH, openapi_version="3.0.1")
 
 app.add_middleware(
     CORSMiddleware,
@@ -41,27 +40,28 @@ app.add_middleware(
     #     DOKOOLA_X_LLM_SERVICE_CLIENT_NAME,
     #     DOKOOLA_X_LLM_SERVICE_SECRET_HASH_NAME
     # ],
-    allow_origins ="*",
+    allow_origins="*",
     allow_methods=["*"],
-    allow_headers=["*"]
+    allow_headers=["*"],
 )
 
-@app.middleware('http')
-async def log_request(request: Request, call_next):
-    return await process_timer_middleware(request, call_next) 
 
-@app.middleware('http')
+@app.middleware("http")
+async def log_request(request: Request, call_next):
+    return await process_timer_middleware(request, call_next)
+
+
+@app.middleware("http")
 async def auth(request: Request, call_next):
-    return await authorization_middleware(request, call_next) 
+    return await authorization_middleware(request, call_next)
+
 
 @app.exception_handler(ValidationError)
 async def validation_error_handler(request: Request, exc: ValidationError):
-    logger.exception('ERROR')
-    return JSONResponse(
-        status_code=400,
-        content={'detail': exc.errors()}
-    )
+    logger.exception("ERROR")
+    return JSONResponse(status_code=400, content={"detail": exc.errors()})
 
 
+app.include_router(jobs.router)
 app.include_router(healthcheck.router)
 app.include_router(llm_text_completion.router)

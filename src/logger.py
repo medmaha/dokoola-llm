@@ -1,13 +1,14 @@
+import logging
 import os
 import uuid
-import logging
 
 ERROR = logging.ERROR
 WARNING = logging.WARNING
 INFO = logging.INFO
 DEBUG = logging.DEBUG
 
-LOG_LEVEL = os.environ.get('API_LOGGING_LEVEL', logging.INFO)
+LOG_LEVEL = os.environ.get("API_LOGGING_LEVEL", logging.INFO)
+
 
 class CorrelationIdFilter(logging.Filter):
     def filter(self, record):
@@ -15,18 +16,16 @@ class CorrelationIdFilter(logging.Filter):
         record.api_request_id = str(uuid.uuid4()).split("-")[1]
         return True
 
-class Logger():
-    def __init__(self, logger_name: str):
-        self.logger = logging.getLogger(logger_name)
-        self.logger.addFilter(CorrelationIdFilter())
 
-    def log(
-        self,
-        level: int,
-        message: str,
-        *args,
-        **kwargs
-    ):
+class Logger(logging.Logger):
+    def __init__(self, logger_name: str):
+        super().__init__(logger_name)
+        self.addFilter(CorrelationIdFilter())
+        self.logger = logging.getLogger(logger_name)
+        self.logger.setLevel(LOG_LEVEL)
+        self.logger.addHandler(logging.StreamHandler())
+
+    def log(self, level: int, message: str, *args, **kwargs):
         self.logger.log(level, message, *args, **kwargs)
 
     def exception(self, message: str):
@@ -43,7 +42,7 @@ class Logger():
 
     def debug(self, message: str, *args, **kwargs):
         self.logger.debug(message, *args, **kwargs)
- 
+
 
 logger = Logger(__name__)
-logger.info(f'dokoola-api-llm logging level is {LOG_LEVEL}')
+logger.info(f"dokoola-api-llm logging level is {LOG_LEVEL}")
