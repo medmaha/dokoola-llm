@@ -6,6 +6,9 @@ CONTAINER_NAME = llm-api
 PROD_CONTAINER_NAME = llm-api-prod
 
 # Build the Docker image
+api:
+	uv run fastapi dev --host 0.0.0.0 --port 8080
+
 build:
 	docker compose build
 

@@ -1,15 +1,19 @@
 param(
     [Parameter(Mandatory=$true)]
-    [ValidateSet("build", "build-prod", "dev", "dev-d", "prod", "rebuild", "rebuild-prod", "stop", "clean", "logs", "logs-prod", "shell", "shell-prod", "test", "health", "health-prod", "restart", "restart-prod")]
+    [ValidateSet("api", "build", "build-prod", "dev", "dev-d", "prod", "rebuild", "rebuild-prod", "stop", "clean", "logs", "logs-prod", "shell", "shell-prod", "test", "health", "health-prod", "restart", "restart-prod")]
     [string]$Command
 )
 
 # Variables
 $IMAGE_NAME = "llm-api"
-$CONTAINER_NAME = "llm-api"
+$CONTAINER_NAME = $IMAGE_NAME
 $PROD_CONTAINER_NAME = "llm-api-prod"
 
 switch ($Command) {
+    "api" {
+        Write-Host "Running development API Server..." -ForegroundColor Green
+        uv run fastapi run main.py --host 0.0.0.0 --port 8080
+    }
     "build" {
         Write-Host "Building Docker image..." -ForegroundColor Green
         docker-compose build
