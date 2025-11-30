@@ -13,21 +13,21 @@ api:
 
 # Build docker container
 build:
-	$(COMPOSE) -f docker-compose.prod.yml build
+	$(COMPOSE) build
 
 # Run in production mode
 start:
-	$(COMPOSE) -f docker-compose.prod.yml up --build -d
+	$(COMPOSE) up --build -d
 
 # Rebuild the service
 rebuild:
 	@echo "🔄 Rebuilding and redeploying production containers..."
 	@echo "Step 1: Building new image..."
-	$(COMPOSE) -f docker-compose.prod.yml build --no-cache
+	$(COMPOSE) build --no-cache
 	@echo "Step 2: Gracefully stopping old containers..."
-	$(COMPOSE) -f docker-compose.prod.yml down --remove-orphans
+	$(COMPOSE) down --remove-orphans
 	@echo "Step 3: Starting new containers..."
-	$(COMPOSE) -f docker-compose.prod.yml up -d
+	$(COMPOSE) up -d
 	@echo "Step 4: Waiting for health check..."
 	@for i in $$(seq 1 30); do \
 		sleep 2; \
@@ -46,17 +46,17 @@ rebuild:
 # Stop all containers
 stop:
 	$(COMPOSE) down
-	$(COMPOSE) -f docker-compose.prod.yml down
+	$(COMPOSE) down
 
 # Stop and remove all containers, networks, and volumes
 clean:
 	$(COMPOSE) down -v --remove-orphans
-	$(COMPOSE) -f docker-compose.prod.yml down -v --remove-orphans
+	$(COMPOSE) down -v --remove-orphans
 	docker system prune -f
 
 # View logs
 logs:
-	$(COMPOSE) -f docker-compose.prod.yml logs -f
+	$(COMPOSE) logs -f
 
 # Get a shell in the container
 shell:
@@ -68,4 +68,4 @@ health:
 
 # Restart service
 restart:
-	$(COMPOSE) -f docker-compose.prod.yml restart
+	$(COMPOSE) restart
