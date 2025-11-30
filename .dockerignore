@@ -28,6 +28,11 @@ Thumbs.db
 *.log
 logs/
 
+# external
+make.ps1
+README.md
+.gitignore
+
 # Testing
 .pytest_cache/
 .coverage
