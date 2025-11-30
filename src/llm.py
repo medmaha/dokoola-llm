@@ -21,7 +21,7 @@ def engage_llm(prompt: str, user: AuthUser, _messges: list[dict] = []) -> str | 
         completion = llm_client.chat.completions.create(
             messages=[
                 *MESSAGES,
-                *_messges,
+                # *_messges,
                 {"role": "user", "content": prompt},
             ],
             model="zai-glm-4.6",
@@ -30,6 +30,10 @@ def engage_llm(prompt: str, user: AuthUser, _messges: list[dict] = []) -> str | 
             temperature=0.6,
             top_p=0.95,
         )
+
+        print("=" * 40)
+        print(prompt)
+        print("=" * 40)
 
         return completion.choices[0].message.content
 
