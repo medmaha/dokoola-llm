@@ -1,8 +1,5 @@
-import random
-
 from fastapi import APIRouter, Response
 
-from src.constant import MODELS
 from src.llm import engage_llm
 from src.logger import Logger
 from src.routers.models.llm_text_completion import (
@@ -10,8 +7,6 @@ from src.routers.models.llm_text_completion import (
     TextCompletionResponse,
 )
 from src.users import get_user_by_public_id
-
-current_model_index = random.randrange(0, len(MODELS) - 1)
 
 logger = Logger(__name__)
 router = APIRouter(tags=["LLM Text Completion"])

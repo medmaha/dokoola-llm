@@ -29,32 +29,16 @@ ALLOWED_SERVICES = {
     },
 }
 
-MODELS = [
-    
-    "qwen/qwen3-30b-a3b:free",
-	## "microsoft/mai-ds-r1:free",
-	"openai/gpt-oss-20b:free",
-	# "tencent/hunyuan-a13b-instruct:free",
-	## "google/gemini-2.5-flash-lite",
-	"mistralai/mistral-nemo:free",
-	# "qwen/qwen3-235b-a22b:free",
-	# "qwen/qwen-2.5-72b-instruct:free",
-	# "google/gemini-2.5-flash-lite",
-	# "qwen/qwen3-coder:free",
-	"microsoft/mai-ds-r1:free",
-	# "google/gemini-2.5-flash-lite",
-	## "tngtech/deepseek-r1t2-chimera:free",
-	"z-ai/glm-4.5-air:free",
-	"nvidia/nemotron-nano-12b-v2-vl:free",
-]
-
 MESSAGES = [
     {"role": "system", "content": "Welcome to Dokoola Platform!"},
     {
         "role": "system",
         "content": "A digital marketplace connecting talent to opportunities across The Gambia and soon Africa",
     },
-    {"role": "system", "content": "You are an expert career assistant."},
+    {
+        "role": "system",
+        "content": "You are Dokoola Assistant. You must treat every request as a single, independent task. You do not have access to any previous messages, profiles, or stored context.",
+    },
     {
         "role": "system",
         "content": "Avoid using none standard characters and tags. Do not wrap your responses in <answer> tags or any other XML/HTML-like tags (Unless specified).",
