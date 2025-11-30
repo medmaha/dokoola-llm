@@ -1,11 +1,11 @@
-version: '3.8'
+version: "3.9"
 
 services:
-  llm-api:
+  llm:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: llm-api-prod
+    container_name: dokoola-llm
     ports:
       - "8000:8000"
     environment:
@@ -13,14 +13,15 @@ services:
       - PYTHONUNBUFFERED=1
     env_file:
       - .env
-    # Remove volume mounts for production
+    networks:
+      - dokoola_net
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health/"]
-      interval: 90s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:8000/api/health/"]
+    #   interval: 90s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 30s
     deploy:
       resources:
         limits:
@@ -31,5 +32,5 @@ services:
           cpus: '0.15'
 
 networks:
-  default:
-    name: llm-api-prod-network
+  dokoola_net:
+    driver: bridge

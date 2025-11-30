@@ -1,15 +1,17 @@
-version: "3.8"
+version: "3.9"
 
 services:
-  llm-api:
+  llm-dev:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: llm-api
+    container_name: dokoola-llm-dev
     ports:
       - 8080:8000
     env_file:
       - .env
+    networks:
+      - dokoola_net
     volumes:
       # Mount source code for development (comment out for production)
       - .:/app
@@ -31,18 +33,6 @@ services:
           cpus: '0.15'
           memory: ${LLM_API_MEMORY_RESERVATION:-256M}
 
-  # nginx:
-  #   image: nginx:alpine
-  #   container_name: llm-api-nginx
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"
-  #   volumes:
-  #     - ./nginx.conf:/etc/nginx/nginx.conf
-  #   depends_on:
-  #     - llm-api
-  #   restart: unless-stopped
-
 networks:
-  default:
-    name: llm-api-network
+  dokoola_net:
+    driver: bridge
