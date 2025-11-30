@@ -18,25 +18,17 @@ def engage_llm(prompt: str, user: AuthUser, _messges: list[dict] = []) -> str | 
         if user:
             _messges.append({"role": "user", "content": f"Name: {user.name}"})
 
-        payload = {
-            "top_p": 1,
-            "stream": False,
-            "temperature": 0.2,
-            "model": "llama-3.3-70b",
-            "max_completion_tokens": 1024,
-            "messages": [
+        completion = llm_client.chat.completions.create(
+            messages=[
                 *MESSAGES,
                 *_messges,
                 {"role": "user", "content": prompt},
             ],
-        }
-        completion = llm_client.chat.completions.create(
-            top_p=payload["top_p"],
-            model=payload["model"],
-            stream=payload["stream"],
-            messages=payload["messages"],
-            temperature=payload["temperature"],
-            max_completion_tokens=payload["max_completion_tokens"],
+            model="zai-glm-4.6",
+            stream=False,
+            max_completion_tokens=40960,
+            temperature=0.6,
+            top_p=0.95,
         )
 
         return completion.choices[0].message.content
