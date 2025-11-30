@@ -13,8 +13,6 @@ services:
       - PYTHONUNBUFFERED=1
     env_file:
       - .env
-    networks:
-      - dokoola_net
     restart: unless-stopped
     # healthcheck:
     #   test: ["CMD", "curl", "-f", "http://localhost:8000/api/health/"]
@@ -30,7 +28,3 @@ services:
         reservations:
           memory: ${LLM_API_MEMORY_RESERVATION:-256M}
           cpus: '0.15'
-
-networks:
-  dokoola_net:
-    driver: bridge
