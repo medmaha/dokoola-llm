@@ -5,37 +5,39 @@ IMAGE_NAME = llm-api
 CONTAINER_NAME = llm-api
 PROD_CONTAINER_NAME = llm-api-prod
 
+COMPOSE = sudo docker-compose -f docker-compose.yaml
+
 # Build the Docker image
 api:
 	uv run fastapi dev --host 0.0.0.0 --port 8080
 
 build:
-	docker compose build
+	$(COMPOSE) build
 
 build-prod:
-	docker compose -f docker-compose.prod.yml build
+	$(COMPOSE) -f docker-compose.prod.yml build
 
 # Run in development mode
 dev:
-	docker compose up --build
+	$(COMPOSE) up --build
 
 # Run in development mode (detached)
 dev-d:
-	docker compose up --build -d
+	$(COMPOSE) up --build -d
 
 # Run in production mode
 prod:
-	docker compose -f docker-compose.prod.yml up --build -d
+	$(COMPOSE) -f docker-compose.prod.yml up --build -d
 
 # Rebuild and redeploy development containers
 rebuild:
 	@echo "🔄 Rebuilding and redeploying development containers..."
 	@echo "Step 1: Building new image..."
-	docker compose build --no-cache
+	$(COMPOSE) build --no-cache
 	@echo "Step 2: Gracefully stopping old containers..."
-	docker compose down --remove-orphans
+	$(COMPOSE) down --remove-orphans
 	@echo "Step 3: Starting new containers..."
-	docker compose up -d
+	$(COMPOSE) up -d
 	@echo "Step 4: Waiting for health check..."
 	@for i in $$(seq 1 30); do \
 		sleep 2; \
@@ -54,11 +56,11 @@ rebuild:
 rebuild-prod:
 	@echo "🔄 Rebuilding and redeploying production containers..."
 	@echo "Step 1: Building new image..."
-	docker compose -f docker-compose.prod.yml build --no-cache
+	$(COMPOSE) -f docker-compose.prod.yml build --no-cache
 	@echo "Step 2: Gracefully stopping old containers..."
-	docker compose -f docker-compose.prod.yml down --remove-orphans
+	$(COMPOSE) -f docker-compose.prod.yml down --remove-orphans
 	@echo "Step 3: Starting new containers..."
-	docker compose -f docker-compose.prod.yml up -d
+	$(COMPOSE) -f docker-compose.prod.yml up -d
 	@echo "Step 4: Waiting for health check..."
 	@for i in $$(seq 1 30); do \
 		sleep 2; \
@@ -75,22 +77,22 @@ rebuild-prod:
 
 # Stop all containers
 stop:
-	docker compose down
-	docker compose -f docker-compose.prod.yml down
+	$(COMPOSE) down
+	$(COMPOSE) -f docker-compose.prod.yml down
 
 # Stop and remove all containers, networks, and volumes
 clean:
-	docker compose down -v --remove-orphans
-	docker compose -f docker-compose.prod.yml down -v --remove-orphans
+	$(COMPOSE) down -v --remove-orphans
+	$(COMPOSE) -f docker-compose.prod.yml down -v --remove-orphans
 	docker system prune -f
 
 # View logs
 logs:
-	docker compose logs -f
+	$(COMPOSE) logs -f
 
 # View production logs
 logs-prod:
-	docker compose -f docker-compose.prod.yml logs -f
+	$(COMPOSE) -f docker-compose.prod.yml logs -f
 
 # Get a shell in the running container
 shell:
@@ -102,7 +104,7 @@ shell-prod:
 
 # Run tests in container
 test:
-	docker compose exec llm-api uv run pytest
+	$(COMPOSE) exec llm-api uv run pytest
 
 # Check container health
 health:
@@ -113,8 +115,8 @@ health-prod:
 
 # Restart the service
 restart:
-	docker compose restart
+	$(COMPOSE) restart
 
 # Restart production service
 restart-prod:
-	docker compose -f docker-compose.prod.yml restart
+	$(COMPOSE) -f docker-compose.prod.yml restart
