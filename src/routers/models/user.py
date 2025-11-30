@@ -10,11 +10,8 @@ class UserProfile(BaseModel):
 
 class AuthUser(UserProfile):
     name: str
-    email: str
     public_id: str
     is_active: bool
-    email_verified: bool
-    username: Optional[str] = Field(default=None)
     complete_profile: Optional[bool] = Field(default=True)
 
     class Config:

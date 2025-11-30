@@ -13,3 +13,4 @@ class TextCompletionResponse(BaseModel):
     success: bool = Field(
         default=True, description="Whether the request was successful."
     )
+    status_code: int = Field(default=5)

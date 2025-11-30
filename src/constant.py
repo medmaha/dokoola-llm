@@ -30,19 +30,22 @@ ALLOWED_SERVICES = {
 }
 
 MODELS = [
-    "google/gemini-2.5-flash-lite",
+    
     "qwen/qwen3-30b-a3b:free",
-    "google/gemini-2.5-flash-lite",
-    "microsoft/mai-ds-r1:free",
-    "google/gemini-2.5-flash-lite",
-    "tencent/hunyuan-a13b-instruct:free",
-    "google/gemini-2.5-flash-lite",
-    "qwen/qwen3-235b-a22b-2507:free",
-    "google/gemini-2.5-flash-lite",
-    "qwen/qwen-2.5-72b-instruct:free",
-    "google/gemini-2.5-flash-lite",
-    "moonshotai/kimi-dev-72b:free",
-    "google/gemini-2.5-flash-lite",
+	## "microsoft/mai-ds-r1:free",
+	"openai/gpt-oss-20b:free",
+	# "tencent/hunyuan-a13b-instruct:free",
+	## "google/gemini-2.5-flash-lite",
+	"mistralai/mistral-nemo:free",
+	# "qwen/qwen3-235b-a22b:free",
+	# "qwen/qwen-2.5-72b-instruct:free",
+	# "google/gemini-2.5-flash-lite",
+	# "qwen/qwen3-coder:free",
+	"microsoft/mai-ds-r1:free",
+	# "google/gemini-2.5-flash-lite",
+	## "tngtech/deepseek-r1t2-chimera:free",
+	"z-ai/glm-4.5-air:free",
+	"nvidia/nemotron-nano-12b-v2-vl:free",
 ]
 
 MESSAGES = [
