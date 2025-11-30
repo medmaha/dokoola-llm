@@ -15,8 +15,8 @@ llm_client = Cerebras(api_key=LLM_API_KEY)
 
 def engage_llm(prompt: str, user: AuthUser, _messges: list[dict] = []) -> str | None:
     try:
-        if user:
-            _messges.append({"role": "user", "content": f"Name: {user.name}"})
+        # if user:
+        # _messges.append({"role": "user", "content": f"Name: {user.name}"})
 
         completion = llm_client.chat.completions.create(
             messages=[
