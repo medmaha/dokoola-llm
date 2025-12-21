@@ -9,5 +9,8 @@ wheels/
 # Env Variables
 .env
 
+# Configuration files
+config.ini
+
 # Virtual environments
 .venv
