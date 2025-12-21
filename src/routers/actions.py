@@ -22,8 +22,8 @@ router = APIRouter(tags=["LLM Generation Endpoint"])
     responses={
         200: {"detail": "Content generation completed successfully"},
         400: {"detail": "Invalid request body"},
-        404: {"detail": "User not found"},
-        429: {"detail": "Generation failed"},
+        403: {"detail": "Forbidden: User not found"},
+        429: {"detail": "Failed to generate completion"},
         500: {"detail": "Internal server error"},
     },
 )
@@ -34,14 +34,13 @@ def process_prompt_completion(
         # Validate user exists
         user = get_user_by_public_id(userPublicId)
         if not user:
-            respone.status_code = 404
+            respone.status_code = 403
             return PromptGenerationResponse(
-                success=False, error_message="User not found"
+                success=False, error_message="Forbidden: User not found"
             )
 
         # Validate template name
-        if request.template_name not in PromptTemplateEnum.__members__:
-            respone.status_code = 400
+        if request.template_name not in PromptTemplateEnum.__members__.values():
             return PromptGenerationResponse(
                 success=False, error_message="Invalid template name"
             )
@@ -58,9 +57,9 @@ def process_prompt_completion(
                 success=False, error_message="Failed to generate completion"
             )
 
-        generation = engage_llm(prompt, user)
+        completion = engage_llm(prompt, user)
         return PromptGenerationResponse(
-            generation=generation, success=generation is not None
+            completion=completion, success=completion is not None
         )
 
     except Exception as e:

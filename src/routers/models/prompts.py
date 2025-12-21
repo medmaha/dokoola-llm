@@ -7,9 +7,9 @@ class PromptTemplateEnum(str, Enum):
     NONE = "none"
     TALENT_BIO = "talent_bio"
     EMPLOYER_ABOUT_US = "employer_about_us"
-    # 
+    #
     JOB_DESCRIPTION = "job_description"
-    # 
+    #
     PROPOSAL_COVER_LETTER = "proposal_cover_letter"
 
 
@@ -18,10 +18,16 @@ class PromptGenerationRequest(BaseModel):
         default={}, description="The data required to generate the prompt."
     )
     template_name: PromptTemplateEnum = Field(
-        default=PromptTemplateEnum.NONE, description="The name of the prompt template to use."
+        default=PromptTemplateEnum.NONE,
+        description="The name of the prompt template to use.",
     )
 
+
 class PromptGenerationResponse(BaseModel):
-    generation: Optional[str] = Field(default=None, description="The generated prompt text.")
+    completion: Optional[str] = Field(
+        default=None, description="The generated prompt text."
+    )
     error_message: Optional[str] = Field(default=None, description="The error message.")
-    success: bool = Field(default=True, description="Indicates if the prompt generation was successful.")
+    success: bool = Field(
+        default=True, description="Indicates if the prompt generation was successful."
+    )

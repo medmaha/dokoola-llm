@@ -69,7 +69,7 @@ class JobDescriptionPromptModel(BaseModel):
 
 class EmployerModel(BaseModel):
     class JobCompanyModel(BaseModel):
-        name: str
+        name: Optional[str] = Field(default=None)
         industry: Optional[str] = Field(default=None)
         date_established: Optional[str] = Field(default=None)
 
@@ -78,7 +78,7 @@ class EmployerModel(BaseModel):
     company: Optional[JobCompanyModel] = Field(default=None)
 
 
-class TalentModel(BaseModel):
+class ProposalTalentModel(BaseModel):
     name: str
     badge: Optional[str] = Field(default=None)
     title: Optional[str] = Field(default=None)
@@ -88,24 +88,18 @@ class TalentModel(BaseModel):
     rating: Optional[float] = Field(default=None)
     verified: Optional[bool] = Field(default=False)
     country: Optional[CountryModel] = Field(default=None)
-    pricing: Optional[float] = Field(default=None)
+    pricing: Optional[str] = Field(default=None)
 
 
-class JobDetailModel(BaseModel):
+class ProposalJobDetailModel(BaseModel):
     title: Optional[str] = Field(default=None)
     category: CategoryModel
-    address: Optional[str] = Field(default=None)
-    country: Optional[CountryModel] = Field(default=None)
     job_type: str
     job_type_other: Optional[str] = Field(default=None)
     experience_level: str
     experience_level_other: Optional[str] = Field(default=None)
-    is_third_party: bool
-    pricing: Optional[JobDescriptionPromptModel.JobPricingModel] = Field(default=None)
-    benefits: Optional[list[str]] = Field(default=None)
     required_skills: list[str]
     estimated_duration: Optional[str] = Field(default=None)
-    application_deadline: Optional[str] = Field(default=None)
     third_party_metadata: Optional[dict] = Field(default=None)
     description: Optional[str] = Field(default=None)
 
@@ -113,7 +107,20 @@ class JobDetailModel(BaseModel):
 
 
 class ProposalCoverLetterPromptModel(BaseModel):
-    talent: TalentModel
-    job: JobDetailModel
+    talent: ProposalTalentModel
+    job: ProposalJobDetailModel
     resume: dict
     metadata: PromptMetadataModel = Field(default_factory=lambda: PromptMetadataModel())
+
+
+class TalentInterface(BaseModel):
+    name: str
+    title: str
+    bio: str
+    bits: int
+    dob: Optional[str] = Field(default=None)
+    badge: str
+    skills: str
+    pricing: str
+    rating: float
+    jobs_completed: int
