@@ -6,10 +6,11 @@ from src.constant import (
     ALLOWED_SERVICES,
     DOKOOLA_X_LLM_SERVICE_KEY_NAME,
     DOKOOLA_X_LLM_SERVICE_CLIENT_NAME,
-    DOKOOLA_X_LLM_SERVICE_SECRET_HASH_NAME
+    DOKOOLA_X_LLM_SERVICE_SECRET_HASH_NAME,
 )
 
 logger = Logger(__name__)
+
 
 async def authorization_middleware(request: Request, call_next):
     # Skip authorization for health check endpoint
@@ -17,9 +18,11 @@ async def authorization_middleware(request: Request, call_next):
         logger.info("Skipping authorization for health check endpoint")
         response = await call_next(request)
         return response
-    
+
     headers = request.headers
-    logger.info(f"Processing authorization request from {headers.get('host', 'unknown host')}")
+    logger.info(
+        f"Processing authorization request from {headers.get('host', 'unknown host')}"
+    )
 
     llm_service_key = headers.get(DOKOOLA_X_LLM_SERVICE_KEY_NAME)
     llm_service_client_name = headers.get(DOKOOLA_X_LLM_SERVICE_CLIENT_NAME)
@@ -30,25 +33,40 @@ async def authorization_middleware(request: Request, call_next):
 
     if not service:
         logger.warning(f"Invalid service key attempted: {llm_service_key}")
-        return JSONResponse(({
-            "message":"403: Forbidden request!",
-            "reason":"Invalid llm service key provided"
-        }), status_code=403)
+        return JSONResponse(
+            (
+                {
+                    "message": "403: Forbidden request!",
+                    "reason": "Invalid llm service key provided",
+                }
+            ),
+            status_code=403,
+        )
 
     # Check if provided has is the same
     if llm_service_secret_hash != service.get("secret_hash"):
         logger.warning(f"Invalid secret hash attempted for service: {llm_service_key}")
-        return JSONResponse(({
-            "message":"403: Forbidden request!",
-            "reason":"Invalid secret hash provided"
-        }), status_code=403)
-    
+        return JSONResponse(
+            (
+                {
+                    "message": "403: Forbidden request!",
+                    "reason": "Invalid secret hash provided",
+                }
+            ),
+            status_code=403,
+        )
+
     if llm_service_client_name != service.get("client_name"):
         logger.warning(f"Invalid client name attempted: {llm_service_client_name}")
-        return JSONResponse(({
-            "message":"403: Forbidden request!",
-            "reason":"Invalid service-client provided"
-        }), status_code=403)
+        return JSONResponse(
+            (
+                {
+                    "message": "403: Forbidden request!",
+                    "reason": "Invalid service-client provided",
+                }
+            ),
+            status_code=403,
+        )
 
     # request_host = headers.get("origin")
     # service_client_host = service.get("host")
