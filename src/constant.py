@@ -22,7 +22,7 @@ def load_services_from_config() -> dict[str, ServiceConfig]:
     services = {}
 
     for section in config.sections():
-        if section.startswith("SERVICE_"):
+        if section.startswith("SERVICE_DKL"):
             service_key = section.replace("SERVICE_", "")
             services[service_key] = {
                 "host": config.get(section, "host"),
