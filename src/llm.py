@@ -31,10 +31,6 @@ def engage_llm(prompt: str, user: AuthUser, _messges: list[dict] = []) -> str | 
             top_p=0.95,
         )
 
-        print("=" * 40)
-        print(prompt)
-        print("=" * 40)
-
         return completion.choices[0].message.content
 
     except Exception as e:

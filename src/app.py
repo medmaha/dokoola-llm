@@ -12,6 +12,7 @@ from src.logger import Logger
 from src.routers import (
     healthcheck,
     jobs,
+    actions,
     llm_text_completion,
 )
 
@@ -63,5 +64,6 @@ async def validation_error_handler(request: Request, exc: ValidationError):
 
 
 app.include_router(jobs.router)
+app.include_router(actions.router)
 app.include_router(healthcheck.router)
 app.include_router(llm_text_completion.router)
