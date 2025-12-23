@@ -96,9 +96,9 @@ class ProposalJobDetailModel(BaseModel):
     category: CategoryModel
     job_type: str
     job_type_other: Optional[str] = Field(default=None)
-    experience_level: str
+    experience_level: Optional[str] = Field(default=None)
     experience_level_other: Optional[str] = Field(default=None)
-    required_skills: list[str]
+    required_skills: list[str] = Field(default_factory=list)
     estimated_duration: Optional[str] = Field(default=None)
     third_party_metadata: Optional[dict] = Field(default=None)
     description: Optional[str] = Field(default=None)

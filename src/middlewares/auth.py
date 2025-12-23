@@ -31,6 +31,12 @@ async def authorization_middleware(request: Request, call_next):
     logger.debug(f"Received service key: {llm_service_key}")
     service = ALLOWED_SERVICES.get(llm_service_key)
 
+    print(
+        "llm_service_key:",
+        llm_service_secret_hash,
+        DOKOOLA_X_LLM_SERVICE_SECRET_HASH_NAME,
+    )
+
     if not service:
         logger.warning(f"Invalid service key attempted: {llm_service_key}")
         return JSONResponse(
