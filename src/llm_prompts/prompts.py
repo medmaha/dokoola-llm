@@ -6,7 +6,7 @@ from src.routers.models.user import AuthUser
 from .models import (
     JobDescriptionPromptModel,
     ProposalCoverLetterPromptModel,
-    TalentInterface,
+    TalentModel,
 )
 from .models import EmployerModel
 from src.routers.models.prompts import (
@@ -33,42 +33,46 @@ class TalentBioParams(TypedDict):
     profile: dict
 
 
-def get_client_short_about_prompt(profile: dict) -> str:
+class ClientBiographyParams(TypedDict):
+    profile: dict
+
+
+def get_client_short_about_prompt(
+    profile: ClientBiographyParams, user: AuthUser
+) -> str:
     """Generate a prompt for creating a client's 'About Us' section."""
-    company = profile.get("company", {})
-    name = company.get("name") or profile.get("name", "")
-    industry = company.get("industry", "technology")
+
+    profile: EmployerModel = EmployerModel(**profile["profile"])
+
+    company = profile.company or None
+    name = company.name if company and company.name else profile.name
+    industry = company.industry if company and company.industry else "technology"
 
     country = ""
-    if company.get("country"):
-        country = company["country"].get("name", "")
-    elif profile.get("user", {}).get("country"):
-        country = profile["user"]["country"].get("name", "")
+    if company and company.country:
+        country = company.country.name or ""
+    elif profile.country and profile.country:
+        country = profile.user.country.name or ""
 
-    stats = profile.get("stats", {})
-    total_spend = stats.get("total_spend")
-    spend = f"${total_spend:,}" if total_spend else None
+    country_text = f"Location: based in {country}" if country else ""
 
-    jobs_posted = stats.get("jobs_posted_count", 0)
-
-    country_text = f" · {country}" if country else ""
-    spend_text = f"Total spend: {spend}+" if spend else ""
+    company_text = f"Company: {name}" if company else f"Name: {profile.name}"
+    industry_text = f"Industry: {industry}" if industry else ""
 
     return f"""
 Write a sharp, trust-building "About Us" blurb (third person) for this client.
 
-Company: {name}
-Industry: {industry}{country_text}
-Jobs posted: {jobs_posted}
-{spend_text}
+{company_text}
+{industry_text}
+{country_text}
 
 Requirements:
-- Max 700 characters (including spaces)
+- Max 300 characters (including spaces)
 - Professional & credible
 - Shows they're serious about hiring top talent
 - No generic fluff
 
-Just output the final text. Nothing else.
+Just output the final text in simple rich marckdown. Nothing else.
 """.strip()
 
 
@@ -80,7 +84,7 @@ class TalentBiographyParams(TypedDict):
 def get_talent_short_bio_prompt(data: TalentBiographyParams, user: AuthUser) -> str:
     """Generate a prompt for creating a talent's bio."""
 
-    profile = TalentInterface(**data["profile"])
+    profile = TalentModel(**data["profile"])
 
     name = profile.name
     title = profile.title
@@ -114,7 +118,7 @@ Rules:
 - Ends with a hook
 - Under 500 chars total
 
-Just output the bio. Nothing else.
+Just output the bio simple rich markdown. Nothing else.
 """.strip()
 
 
@@ -250,7 +254,7 @@ Style: Natural, human, engaging — never robotic or generic. Avoid this chars "
 Do NOT mention that this was AI-generated.
 Do NOT say "As an AI language model".
 Just write the cover letter — nothing else.
-Format your response strictly in rich-text using (basic-html-tags, e.g <p>, <strong> <ul,ol,li>, <br/>).
+Format your response strictly in rich-text using (simple markdown).
 """.strip()
 
 
@@ -362,7 +366,8 @@ Tone: {tone}, direct, respectful of freelancers' time
 Length: {length} 250-450 words max
 Style: Human, concise, zero fluff
     
-Just output the final job description. No titles, no markdown, no quotes, no extra text.
+No titles, no quotes, no extra text.
+Just output the final job description in simple rich markdown.
 """.strip()
 
 

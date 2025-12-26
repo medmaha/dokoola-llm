@@ -72,9 +72,11 @@ class EmployerModel(BaseModel):
         name: Optional[str] = Field(default=None)
         industry: Optional[str] = Field(default=None)
         date_established: Optional[str] = Field(default=None)
+        country: Optional[CountryModel] = Field(default=None)
 
     name: str
     logo: Optional[str] = Field(default=None)
+    country: Optional[CountryModel] = Field(default=None)
     company: Optional[JobCompanyModel] = Field(default=None)
 
 
@@ -113,7 +115,7 @@ class ProposalCoverLetterPromptModel(BaseModel):
     metadata: PromptMetadataModel = Field(default_factory=lambda: PromptMetadataModel())
 
 
-class TalentInterface(BaseModel):
+class TalentModel(BaseModel):
     name: str
     title: str
     bio: str
