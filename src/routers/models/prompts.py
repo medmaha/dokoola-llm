@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 class PromptTemplateEnum(str, Enum):
     NONE = "none"
     TALENT_BIO = "talent_bio"
-    EMPLOYER_ABOUT_US = "employer_about_us"
+    EMPLOYER_ABOUT_US = "client_about_us"
     #
     JOB_DESCRIPTION = "job_description"
     #
