@@ -3,10 +3,11 @@ from typing import Optional
 
 
 class UserProfile(BaseModel):
-    avatar: Optional[HttpUrl] = Field(default=None)
+    avatar: Optional[str] = Field(default=None)
     is_staff: Optional[bool] = Field(default=False)
     is_talent: Optional[bool] = Field(default=False)
     is_client: Optional[bool] = Field(default=False)
+
 
 class AuthUser(UserProfile):
     name: str
