@@ -334,6 +334,7 @@ def get_job_description_prompt(data: DescriptionParams, user: AuthUser) -> str:
         location = address
 
     third_party_text = " (posted via Dokoola)" if is_third_party else ""
+    about_us_text = f"About Us: {client.about}" if client.about else ""
 
     return f"""
 Rewrite this job posting into a clear, professional, and attractive job description that top talent actually wants to apply to.
@@ -342,6 +343,7 @@ Rewrite this job posting into a clear, professional, and attractive job descript
 Title: {job.title or "Untitled Role"}
 Category: {job._category_name() or "Not specified"}
 Company: {company_name}{third_party_text}
+{about_us_text}
 
 === DETAILS FROM CLIENT ===
 

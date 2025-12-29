@@ -84,6 +84,7 @@ class EmployerModel(BaseModel):
         country: Optional[CountryModel] = Field(default=None)
 
     name: str
+    about: Optional[str] = Field(default=None)
     logo: Optional[str] = Field(default=None)
     country: Optional[CountryModel] = Field(default=None)
     company: Optional[JobCompanyModel] = Field(default=None)
