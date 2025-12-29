@@ -189,8 +189,8 @@ def get_proposal_cover_letter_prompt(
     )
     # job_benefits_text = f"Job Benefits Offered: {', '.join(benefits)}" if benefits else ""
     resume_text = (
-        f"Relevant Experience (from resume): {resume.get('description', '')}"
-        if resume
+        f"Relevant Experience (from resume): {resume.description}"
+        if resume and resume.description
         else ""
     )
     bio_summary_text = f"Bio Summary:: {talent.bio}" if talent.bio else ""

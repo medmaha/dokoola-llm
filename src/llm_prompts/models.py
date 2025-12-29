@@ -108,10 +108,15 @@ class ProposalJobDetailModel(BaseModel):
     client: EmployerModel
 
 
+class ProposalTalentResumeModel(BaseModel):
+    name: Optional[str] = Field(default=None)
+    description: Optional[str] = Field(default=None)
+
+
 class ProposalCoverLetterPromptModel(BaseModel):
     talent: ProposalTalentModel
     job: ProposalJobDetailModel
-    resume: dict
+    resume: Optional[ProposalTalentResumeModel] = Field(default=None)
     metadata: PromptMetadataModel = Field(default_factory=lambda: PromptMetadataModel())
 
 
