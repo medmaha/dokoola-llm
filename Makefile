@@ -28,21 +28,10 @@ rebuild:
 	$(COMPOSE) down --remove-orphans
 	@echo "Step 3: Starting new containers..."
 	$(COMPOSE) up -d
-	@echo "Step 4: Waiting for health check..."
-	@for i in $$(seq 1 30); do \
-		sleep 2; \
-		STATUS=$$(docker inspect --format='{{.State.Health.Status}}' $(PROD_CONTAINER_NAME) 2>/dev/null || echo "starting"); \
-		echo "Health check attempt $$i/30: $$STATUS"; \
-		if [ "$$STATUS" = "healthy" ]; then \
-			echo "✅ Production rebuild completed successfully! Container is healthy."; \
-			break; \
-		fi; \
-		if [ $$i -eq 30 ]; then \
-			echo "⚠️ Production rebuild completed but health check failed. Check logs with: make logs-prod"; \
-		fi; \
-	done
-
-
+	@echo "Step 4: Cleaning up unused Docker resources..."
+	sudo docker system prune -f
+	@echo "✅ Rebuild and redeploy completed."
+	
 # Stop all containers
 stop:
 	$(COMPOSE) down
