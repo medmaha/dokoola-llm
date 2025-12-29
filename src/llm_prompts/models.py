@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Literal, Optional
+from typing import Any, Optional
 from enum import Enum
 
 
@@ -50,7 +50,7 @@ class JobDescriptionPromptModel(BaseModel):
         fixed_price: Optional[bool] = Field(default=None)
 
     title: Optional[str] = Field(default=None)
-    category: Optional[str] = Field(default=None)
+    category: Optional[Any] = Field(default=None)
     address: Optional[str] = Field(default=None)
     country: Optional[CountryModel] = Field(default=None)
     job_type: Optional[str] = Field(default="Flexible")
@@ -65,6 +65,15 @@ class JobDescriptionPromptModel(BaseModel):
     metadata: Optional[PromptMetadataModel] = Field(
         default_factory=lambda: PromptMetadataModel()
     )
+
+    def _category_name(self) -> str:
+        if isinstance(self.category, dict):
+            return self.category.get("name", "General")
+        elif hasattr(self.category, "name"):
+            return self.category.name
+        elif isinstance(self.category, str):
+            return self.category
+        return "General"
 
 
 class EmployerModel(BaseModel):

@@ -340,7 +340,7 @@ Rewrite this job posting into a clear, professional, and attractive job descript
 
 === BASIC INFO ===
 Title: {job.title or "Untitled Role"}
-Category: {job.category or "Not specified"}
+Category: {job._category_name() or "Not specified"}
 Company: {company_name}{third_party_text}
 
 === DETAILS FROM CLIENT ===
