@@ -9,6 +9,7 @@ from pydantic import ValidationError
 load_dotenv()
 
 from src.logger import Logger
+from src.config import settings
 from src.routers import (
     healthcheck,
     jobs,
@@ -67,3 +68,11 @@ app.include_router(jobs.router)
 app.include_router(actions.router)
 app.include_router(healthcheck.router)
 app.include_router(llm_text_completion.router)
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(
+        "src.app:app", host=settings.host, port=settings.port, reload=settings.debug
+    )
