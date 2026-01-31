@@ -14,3 +14,5 @@ config.ini
 
 # Virtual environments
 .venv
+
+.vscode/
