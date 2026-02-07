@@ -13,9 +13,8 @@ logger = Logger(__name__)
 
 
 async def authorization_middleware(request: Request, call_next):
-    # Skip authorization for health check endpoint
     if request.url.path.endswith("/health/") or request.url.path.endswith("/health"):
-        logger.info("Skipping authorization for health check endpoint")
+        # logger.info("Skipping authorization for health check endpoint")
         response = await call_next(request)
         return response
 

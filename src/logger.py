@@ -45,4 +45,3 @@ class Logger(logging.Logger):
 
 
 logger = Logger(__name__)
-logger.info(f"dokoola-api-llm logging level is {LOG_LEVEL}")

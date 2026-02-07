@@ -12,7 +12,7 @@ $PROD_CONTAINER_NAME = "llm-api-prod"
 switch ($Command) {
     "api" {
         Write-Host "Running development API Server..." -ForegroundColor Green
-        uv run fastapi run main.py --host 0.0.0.0 --port 8080
+        uv run fastapi run main.py --host 0.0.0.0 --port 8000
     }
     "build" {
         Write-Host "Building Docker image..." -ForegroundColor Green

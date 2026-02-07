@@ -16,7 +16,7 @@ class Settings:
     # API
     api_prefix: str = os.getenv("API_PREFIX", "/api/v1")
     host: str = os.getenv("HOST", "0.0.0.0")
-    port: int = int(os.getenv("PORT", "8080"))
+    port: int = int(os.getenv("PORT", "8000"))
 
 
 settings = Settings()

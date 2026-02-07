@@ -9,7 +9,7 @@ COMPOSE = sudo docker-compose -f docker-compose.yaml
 
 # Build the Docker image
 api:
-	uv run fastapi dev --host 0.0.0.0 --port 8080
+	uv run fastapi dev --host 0.0.0.0 --port 8000
 
 # Build docker container
 build:
