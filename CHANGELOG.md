@@ -1,5 +1,8 @@
 ## [2026.02.08] - 2026-02-08
 
+- fix(ci): update Docker image tag to remove 'latest' for consistency (ee59297 - medmaha)
+
+
 - fix(ci): remove SSH connection test step from deployment workflow (b250aca - medmaha)
 - fix(ci): update Go version and Docker image in CI configuration (8aa6ea7 - medmaha)
 
