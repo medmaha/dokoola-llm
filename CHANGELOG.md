@@ -1,5 +1,8 @@
 ## [2026.02.08] - 2026-02-08
 
+- chore(config): remove example configuration file (01257cf - medmaha)
+
+
 - fix(ci): handle line endings for SSH key and set permissions for known hosts (8641eb8 - medmaha)
 
 
