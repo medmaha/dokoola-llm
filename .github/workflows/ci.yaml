@@ -55,50 +55,8 @@ jobs:
           go test -v -race -covermode=atomic -coverprofile=coverage.out ./...
           go tool cover -html=coverage.out -o coverage.html
 
-      - name: Upload coverage reports
-        uses: codecov/codecov-action@v4
-        if: always()
-        continue-on-error: true
-        with:
-          files: ./llm/coverage.out
-          flags: llm
-          name: llm-coverage
-
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: llm-coverage-report
-          path: llm/coverage.html
-
-  lint:
-    runs-on: ubuntu-latest
-    name: Lint Code
-    
-    defaults:
-      run:
-        working-directory: ${{ env.WORKING_DIR }}
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: ${{ env.GO_VERSION }}
-          cache-dependency-path: llm/go.sum
-
-      - name: Install golangci-lint
-      #   run: |
-      #     curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
-
-      # - name: Run golangci-lint
-      #   run: golangci-lint run --timeout=5m ./...
-        run: echo "Skipping golangci-lint for now - to be implemented in the future"
-
   changelog:
-    needs: [test, lint]
+    needs: [test]
     runs-on: ubuntu-latest
     name: Update Changelog
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.actor != 'github-actions[bot]'
@@ -168,7 +126,7 @@ jobs:
           git push
 
   build:
-    needs: [test, lint, changelog]
+    needs: [test, changelog]
     runs-on: ubuntu-latest
     name: Build & Push Docker Image
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
