@@ -17,6 +17,7 @@ type Settings struct {
 	APIPrefix  string
 	Host       string
 	Port       int
+	ENV		string
 }
 
 // ServiceConfig holds configuration for an allowed service
@@ -48,6 +49,7 @@ func LoadConfig() (*Config, error) {
 			Host:       getEnv("HOST", "0.0.0.0"),
 			Port:       getEnvInt("PORT", 8000),
 			Debug:      getEnvBool("DEBUG", false) != false || os.Getenv("DEBUG") != "false",
+			ENV:        getEnv("ENV", "production"),
 		},
 		CerebrasAPIKey:   strings.TrimSpace(os.Getenv("LLM_API_KEY")),
 		BackendServerAPI: strings.TrimSpace(os.Getenv("BACKEND_SERVER_API")),
