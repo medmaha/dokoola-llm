@@ -1,5 +1,9 @@
 ## [2026.02.08] - 2026-02-08
 
+- refactor(ci): update CI workflow to use local actions repository for changelog, build, and deploy steps (5e7722a - medmaha)
+- refactor(ci): simplify CI workflow by removing redundant steps and using reusable actions (f8b1c8e - medmaha)
+
+
 - chore(config): remove example configuration file (01257cf - medmaha)
 
 
