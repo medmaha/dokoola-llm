@@ -1,5 +1,9 @@
 ## [2026.02.08] - 2026-02-08
 
+- fix(ci): remove SSH connection test step from deployment workflow (b250aca - medmaha)
+- fix(ci): update Go version and Docker image in CI configuration (8aa6ea7 - medmaha)
+
+
 - fix(ci): update CI configuration to simplify paths, enhance coverage reporting, and adjust Docker build context (e825bbb - medmaha)
 - fix(ci): remove coverage report uploads and lint job, update job dependencies (b44b004 - medmaha)
 - fix(ci): comment out golangci-lint installation and execution steps, add placeholder message (f7bc054 - medmaha)
