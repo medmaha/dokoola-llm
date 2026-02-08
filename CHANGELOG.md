@@ -1,5 +1,8 @@
 ## [2026.02.08] - 2026-02-08
 
+- feat(ci): update Docker image handling and add deployment secrets (c9fcbbc - medmaha)
+
+
 - feat(config): add ENV field to Settings and load from environment variables (9312cb8 - medmaha)
 
 
