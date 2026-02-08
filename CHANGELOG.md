@@ -1,5 +1,8 @@
 ## [2026.02.08] - 2026-02-08
 
+- feat(models): add persuasive tune option to ModelTuneEnum (acfd239 - medmaha)
+
+
 - chore(env): remove example environment configuration file (d745108 - medmaha)
 
 
