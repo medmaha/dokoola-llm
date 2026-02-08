@@ -1,5 +1,8 @@
 ## [2026.02.08] - 2026-02-08
 
+- feat(config): add ENV field to Settings and load from environment variables (9312cb8 - medmaha)
+
+
 - feat(prompts): add description for persuasive tone in ToneDescriptions (39c1e39 - medmaha)
 
 
