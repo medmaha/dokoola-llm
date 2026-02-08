@@ -1,5 +1,8 @@
 ## [2026.02.08] - 2026-02-08
 
+- feat(prompts): add description for persuasive tone in ToneDescriptions (39c1e39 - medmaha)
+
+
 - feat(models): add persuasive tune option to ModelTuneEnum (acfd239 - medmaha)
 
 
