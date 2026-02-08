@@ -74,10 +74,6 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     name: Lint Code
-    
-    defaults:
-      run:
-        working-directory: ${{ env.WORKING_DIR }}
 
     steps:
       - name: Checkout code
