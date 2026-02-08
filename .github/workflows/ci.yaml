@@ -11,7 +11,6 @@ on:
 
 env:
   SERVICE_NAME: llm
-  DOCKER_IMAGE: intrasoft0/dokoola-llm
   GO_VERSION: '1.23'
 
 jobs:
@@ -87,11 +86,13 @@ jobs:
           path: .github/actions-repo
 
       - name: Build and push Docker image
-        uses: ./.github/actions-repo/docker-build
+        uses: ./.github/actions-repo/dockerize
         with:
-          docker_image: ${{ env.DOCKER_IMAGE }}
+          docker_image: ${{ secrets.DOCKER_IMAGE }}
           context: .
           dockerfile: ./Dockerfile
+          username: ${{ secrets.DOCKER_USERNAME }}
+          access_token: ${{ secrets.DOCKER_ACCESS_TOKEN }}
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -114,3 +115,7 @@ jobs:
         with:
           service_name: llm
           deploy_command: cicd-deploy-llm
+          vm_public_ip: ${{ secrets.VM_PUBLIC_IP }}
+          vm_username: ${{ secrets.VM_USERNAME }}
+          vm_project_dir: ${{ secrets.VM_PROJECT_DIR }}
+          vm_ssh_key: ${{ secrets.VM_SSH_KEY }}
