@@ -26,9 +26,6 @@ WORKDIR /root/
 # Copy binary from builder
 COPY --from=builder /app/server .
 
-# Copy config example (will be overridden by volume mount in production)
-COPY config.ini.example ./config.ini.example
-
 # Expose port
 EXPOSE 8000
 
