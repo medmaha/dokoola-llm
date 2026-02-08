@@ -16,7 +16,7 @@ on:
 
 env:
   SERVICE_NAME: llm
-  DOCKER_IMAGE: intrasoft0/dokoola-llm:latest
+  DOCKER_IMAGE: intrasoft0/dokoola-llm
   GO_VERSION: '1.23'
 
 jobs:
