@@ -1,0 +1,274 @@
+name: LLM CI/CD
+
+permissions:
+  contents: write
+  packages: write
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'llm/**'
+      - '.github/workflows/ci.yaml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'llm/**'
+  workflow_dispatch:
+
+env:
+  SERVICE_NAME: llm
+  DOCKER_IMAGE: intrasoft0/dokoola-llm
+  WORKING_DIR: llm
+  GO_VERSION: '1.23'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Run Tests
+    
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIR }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: llm/go.sum
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Verify dependencies
+        run: go mod verify
+
+      - name: Run go vet
+        run: go vet ./...
+
+      - name: Run tests with coverage
+        run: |
+          go test -v -race -covermode=atomic -coverprofile=coverage.out ./...
+          go tool cover -html=coverage.out -o coverage.html
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v4
+        if: always()
+        continue-on-error: true
+        with:
+          files: ./llm/coverage.out
+          flags: llm
+          name: llm-coverage
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: llm-coverage-report
+          path: llm/coverage.html
+
+  lint:
+    runs-on: ubuntu-latest
+    name: Lint Code
+    
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIR }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: llm/go.sum
+
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v4
+        with:
+          version: latest
+          working-directory: llm
+          args: --timeout=5m
+
+  changelog:
+    needs: [test, lint]
+    runs-on: ubuntu-latest
+    name: Update Changelog
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.actor != 'github-actions[bot]'
+    
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIR }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Create CHANGELOG.md if it doesn't exist
+          if [ ! -f CHANGELOG.md ]; then
+            echo "# Changelog" > CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            echo "All notable changes to the LLM service will be documented here." >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+          fi
+
+          # Get the last changelog update commit
+          LAST_HASH=$(git log -n 1 --pretty=format:%H -- CHANGELOG.md 2>/dev/null || echo "")
+
+          # Collect commits since last changelog
+          if [ -z "$LAST_HASH" ]; then
+            COMMITS=$(git log --pretty=format:"- %s (%h - %an)" --no-merges -- . | head -20)
+          else
+            COMMITS=$(git log ${LAST_HASH}..HEAD --pretty=format:"- %s (%h - %an)" --no-merges -- .)
+          fi
+
+          # Count commits
+          COMMIT_COUNT=$(echo "$COMMITS" | grep -c "^-" || echo "0")
+          echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
+
+          if [ "$COMMIT_COUNT" -gt 0 ]; then
+            # Generate new changelog entry
+            DATE=$(date +"%Y-%m-%d")
+            VERSION=$(date +"%Y.%m.%d")
+            
+            {
+              echo "## [$VERSION] - $DATE"
+              echo ""
+              echo "$COMMITS"
+              echo ""
+              tail -n +2 CHANGELOG.md
+            } > CHANGELOG.new
+            
+            mv CHANGELOG.new CHANGELOG.md
+          fi
+
+      - name: Commit changelog
+        if: steps.changelog.outputs.commit_count != '0'
+        run: |
+          git add CHANGELOG.md
+          git commit -m "chore(llm): update changelog [skip ci]"
+          git push
+
+  build:
+    needs: [test, lint, changelog]
+    runs-on: ubuntu-latest
+    name: Build & Push Docker Image
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIR }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_ACCOUNT }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_IMAGE }}
+          tags: |
+            type=sha,prefix={{branch}}-,format=short
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value={{date 'YYYYMMDD-HHmmss'}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./llm
+          file: ./llm/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ env.DOCKER_IMAGE }}:buildcache
+          cache-to: type=registry,ref=${{ env.DOCKER_IMAGE }}:buildcache,mode=max
+          provenance: false
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    name: Deploy to Production
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VM_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          chmod 700 ~/.ssh
+
+      - name: Add server to known hosts
+        run: |
+          ssh-keyscan -H ${{ secrets.VM_PUBLIC_IP }} >> ~/.ssh/known_hosts
+
+      - name: Test SSH connection
+        run: |
+          ssh -i ~/.ssh/id_rsa ${{ secrets.VM_USERNAME }}@${{ secrets.VM_PUBLIC_IP }} 'echo "✅ SSH connection successful"'
+
+      - name: Deploy LLM Service
+        run: |
+          ssh -i ~/.ssh/id_rsa ${{ secrets.VM_USERNAME }}@${{ secrets.VM_PUBLIC_IP }} << 'EOF'
+            set -e
+            echo "🚀 Starting LLM deployment..."
+
+            # Navigate to project directory
+            cd ${{ secrets.VM_PROJECT_DIR}}
+
+            # Use Makefile for standardized deployment
+            make cicd-deploy-llm
+
+            echo "✅ LLM deployment completed successfully"
+          EOF
+
+      - name: Verify deployment
+        run: |
+          ssh -i ~/.ssh/id_rsa ${{ secrets.VM_USERNAME }}@${{ secrets.VM_PUBLIC_IP }} << 'EOF'
+            cd ${{ secrets.VM_PROJECT_DIR}}
+            
+            echo "🏥 Checking service health..."
+            make health
+            
+            echo "📊 Service status:"
+            make status
+          EOF
+
+      - name: Notify deployment status
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ LLM deployment successful!"
+          else
+            echo "❌ LLM deployment failed!"
+            exit 1
+          fi
