@@ -55,9 +55,16 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Checkout actions repository
+        uses: actions/checkout@v4
+        with:
+          repository: medmaha/dokoola-github-actions
+          token: ${{ secrets.GH_PAT }}
+          path: .github/actions-repo
 
       - name: Generate and commit changelog
-        uses: medmaha/dokoola-github-actions/changelog@main
+        uses: ./.github/actions-repo/changelog
         with:
           service_name: llm
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -71,9 +78,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      
+      - name: Checkout actions repository
+        uses: actions/checkout@v4
+        with:
+          repository: medmaha/dokoola-github-actions
+          token: ${{ secrets.GH_PAT }}
+          path: .github/actions-repo
 
       - name: Build and push Docker image
-        uses: medmaha/dokoola-github-actions/docker-build@main
+        uses: ./.github/actions-repo/docker-build
         with:
           docker_image: ${{ env.DOCKER_IMAGE }}
           context: .
@@ -87,9 +101,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      
+      - name: Checkout actions repository
+        uses: actions/checkout@v4
+        with:
+          repository: medmaha/dokoola-github-actions
+          token: ${{ secrets.GH_PAT }}
+          path: .github/actions-repo
 
       - name: Deploy LLM Service
-        uses: medmaha/dokoola-github-actions/deploy@main
+        uses: ./.github/actions-repo/deploy
         with:
           service_name: llm
           deploy_command: cicd-deploy-llm
