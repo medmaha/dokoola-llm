@@ -21,6 +21,7 @@ const (
 	TuneEnthusiastic ModelTuneEnum = "enthusiastic"
 	TuneFormal       ModelTuneEnum = "formal"
 	TuneWarm         ModelTuneEnum = "warm"
+	TunePersuasive   ModelTuneEnum = "persuasive"
 )
 
 // ModelResponseLengthEnum defines length options for responses
