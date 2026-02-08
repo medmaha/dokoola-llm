@@ -1,5 +1,8 @@
 ## [2026.02.08] - 2026-02-08
 
+- fix(ci): handle line endings for SSH key and set permissions for known hosts (8641eb8 - medmaha)
+
+
 - fix(ci): update Docker image tag to remove 'latest' for consistency (ee59297 - medmaha)
 
 
