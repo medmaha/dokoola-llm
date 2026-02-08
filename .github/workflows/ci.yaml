@@ -41,7 +41,7 @@ jobs:
       - name: Run tests with coverage
         run: |
           go test -v -race -covermode=atomic -coverprofile=coverage.out ./...
-          go tool cover -html=coverage.out -o coverage.html
+          go tool cover -html=coverage.out -o coverage1.html
 
   changelog:
     needs: [test]
