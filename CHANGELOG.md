@@ -1,4 +1,8 @@
-## [2026.02.08] - 2026-02-08
+## [2026.02.09] - 2026-02-09
+
+- refactor(ci): simplify formatting and testing steps in CI workflow (ff5f874 - medmaha)
+- Add unit tests for constants, handlers, middleware, models, and prompts (fc24d31 - medmaha)
+
 
 - feat(ci): update Docker image handling and add deployment secrets (c9fcbbc - medmaha)
 
