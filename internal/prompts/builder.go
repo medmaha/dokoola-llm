@@ -17,7 +17,6 @@ var ToneDescriptions = map[models.ModelTuneEnum]string{
 	models.TuneFormal:       "highly formal, corporate, and respectful",
 	models.TuneWarm:         "friendly yet professional with a personal touch",
 	models.TunePersuasive:   "convincing, compelling, and focused on benefits",
-
 }
 
 // LengthGuidelines maps length enums to guidelines

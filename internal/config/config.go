@@ -17,7 +17,7 @@ type Settings struct {
 	APIPrefix  string
 	Host       string
 	Port       int
-	ENV		string
+	ENV        string
 }
 
 // ServiceConfig holds configuration for an allowed service

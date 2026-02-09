@@ -64,7 +64,7 @@ func main() {
 	// Create router
 	router := gin.New()
 	router.RedirectTrailingSlash = true
-	
+
 	// Global middleware
 	router.Use(gin.Recovery())
 	router.Use(middleware.ProcessTimerMiddleware(logger))

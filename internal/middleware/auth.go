@@ -92,7 +92,7 @@ func ProcessTimerMiddleware(logger *zap.Logger) gin.HandlerFunc {
 
 		// Add processing time to response headers
 		c.Header("X-Process-Time", duration.String())
-		
+
 		// Log completion
 		logger.Info("[REQUEST]", zap.String("method", c.Request.Method),
 			zap.String("path", c.Request.URL.Path),

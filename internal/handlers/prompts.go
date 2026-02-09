@@ -58,10 +58,10 @@ func (h *PromptsHandler) GeneratePrompt(c *gin.Context) {
 		)
 		errorMessage := fmt.Sprintf("User not found: %s", userID)
 		c.JSON(http.StatusNotFound, models.TextCompletionResponse{
-			Success: false,
+			Success:      false,
 			ErrorMessage: &errorMessage,
 		})
-		return 
+		return
 	}
 
 	// Build prompt from template

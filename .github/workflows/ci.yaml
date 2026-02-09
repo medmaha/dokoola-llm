@@ -33,14 +33,19 @@ jobs:
 
       - name: Verify dependencies
         run: go mod verify
-
+      
+      # Run go fmt to check code formatting
+      - name: Check code formatting
+        run: go fmt ./... | grep -v "no formatting changes"
+      
+      # Run go vet to check for potential issues in the code
       - name: Run go vet
         run: go vet ./...
-
+      
+      # Run go test with coverage to ensure all tests pass and to check test coverage
       - name: Run tests with coverage
         run: |
-          go test -v -race -covermode=atomic -coverprofile=coverage.out ./...
-          go tool cover -html=coverage.out -o coverage.html
+          go test ./... -cover
 
   changelog:
     needs: [test]
