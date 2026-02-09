@@ -1,5 +1,8 @@
 ## [2026.02.09] - 2026-02-09
 
+- feat(llm): implement rate limiting handling in LLM client and update logging in handlers (3a62e91 - medmaha)
+
+
 - refactor(ci): simplify formatting and testing steps in CI workflow (ff5f874 - medmaha)
 - Add unit tests for constants, handlers, middleware, models, and prompts (fc24d31 - medmaha)
 
