@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -66,6 +67,16 @@ func (h *TextCompletionHandler) Complete(c *gin.Context) {
 	// Get LLM completion
 	completion, err := h.llmClient.Complete(req.Text, user)
 	if err != nil {
+		if errors.Is(err, llm.ErrRateLimited) {
+			h.logger.Warn("Upstream LLM rate limited", zap.Error(err))
+			msg := "Upstream LLM service overloaded; please try again later"
+			c.JSON(http.StatusServiceUnavailable, models.TextCompletionResponse{
+				Success:      false,
+				ErrorMessage: &msg,
+			})
+			return
+		}
+
 		h.logger.Error("LLM completion failed", zap.Error(err))
 		errorMsg := fmt.Sprintf("Failed to generate completion: %s", err.Error())
 		c.JSON(http.StatusInternalServerError, models.TextCompletionResponse{

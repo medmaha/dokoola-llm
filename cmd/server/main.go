@@ -39,7 +39,9 @@ func main() {
 		logger.Fatal("Failed to load configuration", zap.Error(err))
 	}
 
-	logger.Info("Configuration loaded",
+	logger.Info("Configuration loaded\n",
+		zap.Int("port", cfg.Settings.Port),
+		zap.String("host", cfg.Settings.Host),
 		zap.String("app_name", cfg.Settings.AppName),
 		zap.String("version", cfg.Settings.AppVersion),
 		zap.Bool("debug", cfg.Settings.Debug),

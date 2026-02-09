@@ -3,9 +3,12 @@ package llm
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"math/rand"
 	"net/http"
+	"time"
 
 	"github.com/dokoola/llm-go/internal/constants"
 	"github.com/dokoola/llm-go/internal/models"
@@ -18,6 +21,16 @@ const (
 	maxTokens      = 40960
 	temperature    = 0.6
 	topP           = 0.95
+)
+
+var (
+	// ErrRateLimited is returned when the upstream LLM service indicates rate limiting
+	ErrRateLimited = errors.New("llm: rate limited")
+)
+
+const (
+	llmMaxRetries   = 3
+	llmBackoffBaseMs = 500
 )
 
 // Message represents a chat message
@@ -105,26 +118,80 @@ func (c *Client) Complete(userPrompt string, user *models.AuthUser) (string, err
 		zap.Int("message_count", len(messages)),
 	)
 
-	req, err := http.NewRequest("POST", cerebrasAPIURL, bytes.NewBuffer(jsonData))
-	if err != nil {
-		return "", fmt.Errorf("failed to create request: %w", err)
-	}
+	// Retry loop for transient upstream throttling (HTTP 429)
+	for attempt := 0; attempt < llmMaxRetries; attempt++ {
+		req, err := http.NewRequest("POST", cerebrasAPIURL, bytes.NewBuffer(jsonData))
+		if err != nil {
+			return "", fmt.Errorf("failed to create request: %w", err)
+		}
 
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+c.apiKey)
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", "Bearer "+c.apiKey)
 
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("failed to send request: %w", err)
-	}
-	defer resp.Body.Close()
+		resp, err := c.httpClient.Do(req)
+		if err != nil {
+			return "", fmt.Errorf("failed to send request: %w", err)
+		}
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", fmt.Errorf("failed to read response: %w", err)
-	}
+		body, err := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		if err != nil {
+			return "", fmt.Errorf("failed to read response: %w", err)
+		}
 
-	if resp.StatusCode != http.StatusOK {
+		// track last response if needed (omitted)
+
+		if resp.StatusCode == http.StatusOK {
+			var completionResp ChatCompletionResponse
+			if err := json.Unmarshal(body, &completionResp); err != nil {
+				return "", fmt.Errorf("failed to unmarshal response: %w", err)
+			}
+
+			if len(completionResp.Choices) == 0 {
+				return "", fmt.Errorf("no completion choices returned")
+			}
+
+			completion := completionResp.Choices[0].Message.Content
+
+			c.logger.Info("LLM completion successful",
+				zap.Int("prompt_tokens", completionResp.Usage.PromptTokens),
+				zap.Int("completion_tokens", completionResp.Usage.CompletionTokens),
+				zap.Int("total_tokens", completionResp.Usage.TotalTokens),
+			)
+
+			return completion, nil
+		}
+
+		// Handle rate limiting specially (retryable)
+		if resp.StatusCode == http.StatusTooManyRequests {
+			// Try to parse a helpful message
+			var parsed map[string]interface{}
+			_ = json.Unmarshal(body, &parsed)
+			msg := string(body)
+			if v, ok := parsed["message"].(string); ok && v != "" {
+				msg = v
+			}
+			c.logger.Warn("LLM API rate limited",
+				zap.Int("status_code", resp.StatusCode),
+				zap.String("message", msg),
+				zap.Int("attempt", attempt+1),
+			)
+
+			// If not last attempt, sleep and retry
+			if attempt < llmMaxRetries-1 {
+				// Exponential backoff with jitter
+				backoff := time.Duration(llmBackoffBaseMs*(1<<attempt)) * time.Millisecond
+				// jitter up to 100ms
+				jitter := time.Duration(rand.Intn(100)) * time.Millisecond
+				time.Sleep(backoff + jitter)
+				continue
+			}
+
+			// Exhausted retries
+			return "", fmt.Errorf("%w: LLM API error: status %d, body: %s", ErrRateLimited, resp.StatusCode, string(body))
+		}
+
+		// Non-retryable error: attempt to extract nested error message
 		var errResp ErrorResponse
 		if err := json.Unmarshal(body, &errResp); err == nil && errResp.Error.Message != "" {
 			c.logger.Error("LLM API error",
@@ -133,27 +200,11 @@ func (c *Client) Complete(userPrompt string, user *models.AuthUser) (string, err
 			)
 			return "", fmt.Errorf("LLM API error: %s", errResp.Error.Message)
 		}
+
 		return "", fmt.Errorf("LLM API error: status %d, body: %s", resp.StatusCode, string(body))
 	}
 
-	var completionResp ChatCompletionResponse
-	if err := json.Unmarshal(body, &completionResp); err != nil {
-		return "", fmt.Errorf("failed to unmarshal response: %w", err)
-	}
-
-	if len(completionResp.Choices) == 0 {
-		return "", fmt.Errorf("no completion choices returned")
-	}
-
-	completion := completionResp.Choices[0].Message.Content
-
-	c.logger.Info("LLM completion successful",
-		zap.Int("prompt_tokens", completionResp.Usage.PromptTokens),
-		zap.Int("completion_tokens", completionResp.Usage.CompletionTokens),
-		zap.Int("total_tokens", completionResp.Usage.TotalTokens),
-	)
-
-	return completion, nil
+	return "", fmt.Errorf("LLM API error: exhausted retries or unknown error")
 }
 
 // buildMessages constructs the message array for the LLM request

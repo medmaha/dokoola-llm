@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -91,6 +92,17 @@ func (h *PromptsHandler) GeneratePrompt(c *gin.Context) {
 	// Get LLM completion
 	completion, err := h.llmClient.Complete(prompt, user)
 	if err != nil {
+		// If upstream LLM is rate-limited, return 503 to caller
+		if errors.Is(err, llm.ErrRateLimited) {
+			h.logger.Warn("Upstream LLM rate limited", zap.Error(err))
+			msg := "Upstream LLM service overloaded; please try again later"
+			c.JSON(http.StatusServiceUnavailable, models.PromptGenerationResponse{
+				Success:      false,
+				ErrorMessage: &msg,
+			})
+			return
+		}
+
 		h.logger.Error("LLM completion failed", zap.Error(err))
 		errorMsg := fmt.Sprintf("Failed to generate completion: %s", err.Error())
 		c.JSON(http.StatusInternalServerError, models.PromptGenerationResponse{
