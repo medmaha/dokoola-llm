@@ -54,10 +54,26 @@ func buildTalentBioPrompt(data map[string]interface{}, user *models.AuthUser) (s
 	name := getString(profile, "name", "the talent")
 	title := getString(profile, "title", "Professional")
 	skills := getString(profile, "skills", "")
+	// bio := getString(profile, "bio", "")
 	rating := getFloat(profile, "rating", 0.0)
 	jobsCompleted := getInt(profile, "jobs_completed", 0)
-	pricing := getFloat(profile, "pricing", 0.0)
-	badge := getString(profile, "badge", "")
+	// pricing := getFloat(profile, "pricing", 0.0)
+	// badge := getString(profile, "badge", "")
+	// dob := getString(profile, "dob", "")
+	// country := ""
+
+	// Extract user details if available
+	firstName := ""
+	lastName := ""
+	// address := ""
+	if userDetail, ok := profile["user"].(map[string]interface{}); ok {
+		firstName = getString(userDetail, "first_name", "")
+		lastName = getString(userDetail, "last_name", "")
+		// address = getString(userDetail, "address", "")
+		// if countryDetail, ok := userDetail["country"].(map[string]interface{}); ok {
+			// country = getString(countryDetail, "name", "")
+		// }
+	}
 
 	skillsList := ""
 	if skills != "" {
@@ -71,26 +87,39 @@ func buildTalentBioPrompt(data map[string]interface{}, user *models.AuthUser) (s
 		skillsList = strings.Join(parts, ", ")
 	}
 
-	prompt := fmt.Sprintf(`You are an elite Dokoola profile copywriter.
+	fullName := name
+	if firstName != "" || lastName != "" {
+		fullName = firstName + " " + lastName
+		fullName = strings.TrimSpace(fullName)
+	}
 
-Write a powerful, first-person bio for %s in MAX 500 characters (including spaces).
+	// bioContext := ""
+	// if bio != "" {
+	// 	bioContext = fmt.Sprintf("\nCurrent Background Context:\n%s", bio)
+	// }
 
-Current title: %s
-Badge: %s
-Rating: %.1f/5
-Jobs completed: %d
-Rate: $%.0f/hr
-Top skills: %s
+	prompt := fmt.Sprintf(`You are an elite Dokoola profile copywriter specializing in high-impact bios.
 
-Rules:
-- First person
-- Zero filler words
-- Instantly shows expertise + results
-- Ends with a hook
-- Under 500 chars total
+Generate a compelling, first-person professional bio for %s in MAX 500 characters (including spaces).
 
-Just output the bio simple rich markdown. Nothing else.`,
-		name, title, badge, rating, jobsCompleted, pricing, skillsList)
+Profile Information:
+- Title: %s
+- Skills: %s
+- Rating: %.1f/5 stars
+- Jobs Completed: %d
+
+Guidelines:
+- Write in first person (I/my perspective)
+- Lead with unique value proposition
+- Incorporate 2-3 key skills naturally
+- Zero filler words or clichés
+- Show results-oriented mindset
+- End with compelling call-to-action or hook
+- Professional yet approachable tone
+- Under 500 characters total
+
+Output ONLY the bio in simple rich markdown. No explanations or preamble.`,
+		fullName, title, skillsList, rating, jobsCompleted)
 
 	return prompt, nil
 }
