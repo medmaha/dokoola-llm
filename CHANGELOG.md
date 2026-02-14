@@ -1,4 +1,7 @@
-## [2026.02.09] - 2026-02-09
+## [2026.02.14] - 2026-02-14
+
+- fix: update API endpoint URLs in BackendClient for user and categories (fb6a4bf - medmaha)
+
 
 - feat(prompts): enhance talent bio prompt with user details and improved guidelines (46c0295 - medmaha)
 
