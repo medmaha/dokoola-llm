@@ -31,7 +31,7 @@ func NewBackendClient(baseURL string, logger *zap.Logger) *BackendClient {
 
 // GetUser fetches user data from the backend
 func (c *BackendClient) GetUser(userID string) (*models.AuthUser, error) {
-	url := fmt.Sprintf("%s/api/users/%s/llm/", c.baseURL, userID)
+	url := fmt.Sprintf("%s/users/%s/llm/", c.baseURL, userID)
 
 	c.logger.Debug("Fetching user from backend", zap.String("user_id", userID))
 
@@ -82,7 +82,7 @@ func (c *BackendClient) GetCategories() ([]models.JobCategory, error) {
 	c.mu.RUnlock()
 
 	// Fetch from backend
-	url := fmt.Sprintf("%s/api/categories?scraper=true", c.baseURL)
+	url := fmt.Sprintf("%s/categories?scraper=true", c.baseURL)
 
 	c.logger.Debug("Fetching categories from backend")
 
