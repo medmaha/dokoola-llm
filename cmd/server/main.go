@@ -74,10 +74,7 @@ func main() {
 
 	// API routes with authentication
 	apiPrefix := cfg.Settings.APIPrefix
-	if apiPrefix == "" {
-		apiPrefix = "/api/v1"
-	}
-
+	
 	// Health check endpoint (no auth required)
 	router.GET(apiPrefix+"/health", handlers.HealthCheck)
 

@@ -29,6 +29,7 @@ func AuthMiddleware(cfg *config.Config, logger *zap.Logger) gin.HandlerFunc {
 				zap.String("path", c.Request.URL.Path),
 				zap.String("service_key", serviceKey),
 				zap.String("client_name", clientName),
+				zap.String("secretHash", secretHash),
 			)
 			c.JSON(http.StatusForbidden, gin.H{
 				"error":   "Forbidden",
