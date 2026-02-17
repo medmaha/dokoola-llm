@@ -1,5 +1,9 @@
 ## [2026.02.17] - 2026-02-17
 
+- fix: update API routes for job description and text completion (9fd7ed2 - medmaha)
+- feat: implement job description generation and response models (793fd8f - medmaha)
+
+
 - fix: remove default API prefix to /api/v1 if not provided (131f1b3 - medmaha)
 
 
