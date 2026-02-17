@@ -1,4 +1,7 @@
-## [2026.02.14] - 2026-02-14
+## [2026.02.17] - 2026-02-17
+
+- fix: remove default API prefix to /api/v1 if not provided (131f1b3 - medmaha)
+
 
 - fix: update API endpoint URLs in BackendClient for user and categories (fb6a4bf - medmaha)
 
