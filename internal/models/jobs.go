@@ -31,3 +31,23 @@ type JobCategorizationResponse struct {
 	ErrorMessage *string           `json:"error_message,omitempty"`
 	Success      bool              `json:"success"`
 }
+
+// JobDescribeRequest is the request payload for job description
+type JobDescribeRequest struct {
+	Title	   string `json:"title" binding:"required"`
+	Description string `json:"description" binding:"required"`
+	Category    string `json:"category" binding:"required"`
+}
+
+// JobDescription represents the job description output
+type JobDescription struct {
+	Description string `json:"description"`
+	ShortDescription string `json:"short_description"`
+}
+
+// JobDescribeResponse is the response for job description
+type JobDescribeResponse struct {
+	Data         []JobDescription `json:"data"`
+	ErrorMessage *string           `json:"error_message,omitempty"`
+	Success      bool              `json:"success"`
+}

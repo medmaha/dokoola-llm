@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -26,6 +27,74 @@ func NewJobsHandler(llmClient *llm.Client, backendClient *clients.BackendClient,
 		backendClient: backendClient,
 		logger:        logger,
 	}
+}
+
+// Generates a detailed and short description for a job posting
+func (h *JobsHandler) GenerateJobDesc(c *gin.Context) {
+
+	var req []models.JobDescribeRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		errorMsg := fmt.Sprintf("Invalid request: %s", err.Error())
+		c.JSON(http.StatusBadRequest, models.JobDescribeResponse{
+			Success:      false,
+			ErrorMessage: &errorMsg,
+		})
+		return
+	}	
+
+	prompt := fmt.Sprintf(`You are a job description expert for Dokoola platform.
+	
+	Analyze this job posting and provide a detailed description and a short description.
+	
+	Data
+	"""%s"""
+	
+	Instructions:
+	- Return an array of JSON object with two fields: "description" and "short_description"
+	- The "description" should be a detailed summary of the job posting
+	- The "short_description" a summary of the job (400 characters max) not a rich text, use plaintext only
+	- Do not include any other text, only the JSON object
+
+
+	- Note: If description is already matured and efficient enough like (>500chars), you don't need to add any details,
+	just generate the short description, Otherswise, generate both description and short description.
+
+	- Note: Your generation should be in first person, like the this is writting by the job poster, not a third party description of the job.
+	So avoid using third person perspective in the description.
+	
+	Job description:`, req)
+
+	// Get LLM completion
+	completion, err := h.llmClient.Complete(prompt, nil)
+	if err != nil {
+		h.logger.Error("LLM completion failed", zap.Error(err))
+		errorMsg := fmt.Sprintf("Failed to generate description: %s", err.Error())
+		c.JSON(http.StatusInternalServerError, models.JobDescribeResponse{
+			Success:      false,
+			ErrorMessage: &errorMsg,
+		})
+		return
+	}
+
+	// Parse the JSON response
+	var payload []models.JobDescription
+	err = json.Unmarshal([]byte(completion), &payload)
+	if err != nil {
+		h.logger.Error("Failed to parse LLM response", zap.String("response", completion), zap.Error(err))
+		errorMsg := fmt.Sprintf("Failed to parse description response: %s", err.Error())
+		c.JSON(http.StatusInternalServerError, models.JobDescribeResponse{
+			Success:      false,
+			ErrorMessage: &errorMsg,
+		})
+		return
+	}
+
+	// Return the response
+	c.JSON(http.StatusOK, models.JobDescribeResponse{
+		Success: true,
+		Data:    payload,
+	})
 }
 
 // CategorizeJobs handles POST /api/v1/llm/jobs/categorize
