@@ -78,14 +78,17 @@ func main() {
 	// Health check endpoint (no auth required)
 	router.GET(apiPrefix+"/health", handlers.HealthCheck)
 
-	api := router.Group(apiPrefix + "/chat")
+	api := router.Group(apiPrefix)
 	api.Use(middleware.AuthMiddleware(cfg, logger))
 	{
+		// Jobs description
+		api.POST("/jobs/describe", jobsHandler.GenerateJobDesc)
+		
 		// Jobs categorization
 		api.POST("/jobs/categorize", jobsHandler.CategorizeJobs)
 
 		// Text completion
-		api.POST("/completion", textCompletionHandler.Complete)
+		api.POST("/chat/completion", textCompletionHandler.Complete)
 
 		// Prompt generation
 		api.POST("/actions/generate-prompt", promptsHandler.GeneratePrompt)
